@@ -1,0 +1,2 @@
+git+https://github.com/mtag-dev/squall@master#python-squall
+esg[standard]

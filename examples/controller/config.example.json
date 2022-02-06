@@ -1,0 +1,54 @@
+{
+  "services": [
+    {
+      "name": "my_service",
+      "ignore_trailing_slashes": true,
+      "validators": {
+        "int": "^[0-9]+$",
+        "uuid": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/user",
+          "group": "User",
+          "title": "Add",
+          "permission": "service:user:add",
+          "allow_anonymous": false
+        },
+        {
+          "method": "PATCH",
+          "path": "/user/{user_id:int}",
+          "group": "User",
+          "title": "Edit",
+          "permission": "service:user:edit",
+          "allow_anonymous": false
+        },
+        {
+          "method": "GET",
+          "path": "/user/{user_id:int}",
+          "group": "User",
+          "title": "View",
+          "permission": "service:user:get",
+          "allow_anonymous": false
+        },
+        {
+          "method": "DELETE",
+          "path": "/user/{user_id:int}",
+          "group": "User",
+          "title": "Delete",
+          "permission": "service:user:delete",
+          "allow_anonymous": false
+        },
+        {
+          "method": "POST",
+          "path": "/user",
+          "group": "User",
+          "title": "Add",
+          "permission": "service:user:add",
+          "allow_anonymous": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+version: '3'
+services:
+  ingress:
+    container_name: openresty
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ./plugins:/etc/nginx/lua
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./config.example.json:/etc/nginx/config.example.json
+      - ./nginx.vh.default.conf:/etc/nginx/conf.d/default.conf
+      - ./t:/etc/nginx/t
+
+  controller:
+    container_name: controller
+    build:
+      context: ./examples/controller
+      dockerfile: Dockerfile
+    ports:
+      - "81:81"
+    volumes:
+      - ./examples/controller:/app
