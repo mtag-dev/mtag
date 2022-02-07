@@ -18,6 +18,7 @@ local function receive(wb, protocol)
     end
 end
 
+
 local function run(host, insecure, protocol)
     local client = require "resty.websocket.client"
 
@@ -35,16 +36,24 @@ local function run(host, insecure, protocol)
 end
 
 
+-- Create new Controller-WebSocket communication instance
+-- @param host Controller host
+-- @param insecure Use ws:// instead of wss://
 function WebSocket:new(host, insecure)
     self.host = host
     self.insecure = insecure
     return self
 end
 
+
+-- Set protocol for handling incoming messages
+-- @param protocol Protocol instance
 function WebSocket:set_protocol(protocol)
     self.protocol = protocol
 end
 
+
+-- Run WebSocket communication process
 function WebSocket:run()
     local function thread()
         ngx.thread.spawn(

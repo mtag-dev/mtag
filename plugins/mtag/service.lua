@@ -1,19 +1,25 @@
 local Service = {}
+
+local pairs = pairs
 local squall_router = require("squall_router")
 
-function Service:new(name)
+-- Create new service
+-- @param name Service name
+function Service:new()
     return self
 end
 
-function Service:configure(service)
+-- Configure service instance
+-- @param data Configuration data
+function Service:configure(data)
     local router = squall_router.new_router()
     local settings = {}
 
-    for alias, regex in pairs(service.validators) do
+    for alias, regex in pairs(data.validators) do
         router:add_validator(alias, regex)
     end
 
-    for index, endpoint in pairs(service.endpoints) do
+    for index, endpoint in pairs(data.endpoints) do
         router:add_route(
             endpoint.method,
             endpoint.path,
@@ -22,9 +28,14 @@ function Service:configure(service)
         settings[index] = endpoint
     end
 
-    self.router, self.settings = router, settings
+    self.router = router
+    self.settings = settings
 end
 
+-- Route resolving method.
+-- Returns endpoint configuration or nil
+-- @param method Request method
+-- @param path Request path
 function Service:resolve(method, path)
     local res, err = self.router:resolve(method, path)
     if res ~= nil then
