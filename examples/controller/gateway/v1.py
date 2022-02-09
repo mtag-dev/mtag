@@ -36,6 +36,13 @@ async def websocket_endpoint(websocket: WebSocket):
                 "data": service
             })
 
+        if authentication := data.get('authentication', {}):
+            commands.append({
+                "type": "authentication",
+                "command": "add",
+                "data": authentication
+            })
+
     await websocket.send_text(
         orjson.dumps({
             "data": commands

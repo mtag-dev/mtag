@@ -1,4 +1,11 @@
 {
+  "authentication": {
+    "mode": "bearer",
+    "parameters": {
+      "discovery": "https://xxxxxx.us.auth0.com/.well-known/openid-configuration",
+      "ssl_verify": "no"
+    }
+  },
   "services": [
     {
       "name": "my_service",
@@ -7,6 +14,7 @@
         "int": "^[0-9]+$",
         "uuid": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
       },
+      "superuser_permission": "service:all",
       "endpoints": [
         {
           "method": "POST",
@@ -30,6 +38,14 @@
           "group": "User",
           "title": "View",
           "permission": "service:user:get",
+          "allow_anonymous": false
+        },
+        {
+          "method": "GET",
+          "path": "/protected-api/company/{company_id:int}",
+          "group": "Company",
+          "title": "View",
+          "permission": "service:company:get",
           "allow_anonymous": false
         },
         {

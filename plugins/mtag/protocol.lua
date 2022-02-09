@@ -20,7 +20,9 @@ function _M:feed(encoded)
     end
 
     for i, record in pairs(res.data) do
-        if record.type == "service" then
+        if record.type == "authentication" then
+            self:process_authentication(record.data)
+        elseif record.type == "service" then
             self:process_service(record.data)
         end
     end
@@ -39,9 +41,10 @@ function _M:process_service(data)
     self.state.service[data.name] = s
 end
 
--- Single IDP configuration processor
+-- Single authentication provider configuration processor
 -- @param data configuration data
-function _M:process_idp(data)
+function _M:process_authentication(data)
+    self.state.authentication = data
 end
 
 -- Single group configuration processor

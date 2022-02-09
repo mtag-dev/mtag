@@ -15,3 +15,5 @@ Under development
 - [ ] IDP dynamic configuration
 - [ ] Groups to action dynamic mapping
 - [ ] JWT/OAuth/OIDC integration
+- [ ] Maintenance mode
+- [ ] Introspection

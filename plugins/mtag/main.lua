@@ -1,8 +1,11 @@
 local ngx = ngx
+local cjson = require("cjson")
 
 local _M = {
     state = {
-        service = {}
+        authentication = {},
+        service = {},
+        initialized = false
     }
 }
 
@@ -15,12 +18,27 @@ end
 
 
 function _M.rewrite()
-    local service = _M.state.service["my_service"]
+    local state = _M.state
+    local service = state.service["my_service"]
     local res, err = service:resolve(ngx.var.request_method, ngx.var.uri)
+    local no_authorized = true
     if res then
-        ngx.status = 200
-        ngx.say(res["permission"]) -- return configuration identifier
-        ngx.exit(ngx.HTTP_OK)
+        local openidc = require("resty.openidc")
+        openidc.set_logging(nil, { DEBUG = ngx.INFO })
+        local ok, err = openidc.bearer_jwt_verify(state.authentication.parameters)
+        if ok then
+            for i, permission in pairs(ok.permissions or {}) do
+                if res["permission"] == permission then
+                    ngx.status = 200
+                    ngx.say(permission)
+                    ngx.exit(ngx.HTTP_OK)
+                    return
+                end
+            end
+            ngx.exit(ngx.HTTP_FORBIDDEN)
+        else
+            ngx.exit(ngx.HTTP_UNAUTHORIZED)
+        end
     else
         ngx.exit(ngx.HTTP_NOT_FOUND)
     end
