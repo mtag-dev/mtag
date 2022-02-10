@@ -1,5 +1,8 @@
 local ngx = ngx
 local cjson = require("cjson")
+local openidc = require("resty.openidc")
+openidc.set_logging(nil, {DEBUG = ngx.INFO})
+
 
 local _M = {
     state = {
@@ -8,6 +11,41 @@ local _M = {
         initialized = false
     }
 }
+
+
+local function authenticate(authentication)
+    -- TODO: Check iss, aud, exp, etc, here
+    return openidc[authentication.mode](authentication.parameters)
+end
+
+
+local function is_authorized(action_permission, superuser_permission, token_permissions)
+    for i, permission in pairs(token_permissions or {}) do
+        if permission == action_permission then
+            return true
+        elseif superuser_permission and permission == superuser_permission then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function wait_until_state_initialized(state, timeout, check_interval)
+    local _timeout = timeout or 10
+    local _check_interval = check_interval or 1
+    local duration = 0
+    while duration < _timeout do
+        ngx.sleep(_check_interval)
+        duration = duration + _check_interval
+        if state.initialized then
+            return
+        end
+    end
+
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
 
 function _M.init_worker()
     local websocket = require("mtag.websocket"):new("controller:81", true)
@@ -19,22 +57,19 @@ end
 
 function _M.rewrite()
     local state = _M.state
-    local service = state.service["my_service"]
+    if state.initialized == false then
+        wait_until_state_initialized(state)
+    end
+
+    local service = state.service[ngx.var.mtag_service]
     local res, err = service:resolve(ngx.var.request_method, ngx.var.uri)
-    local no_authorized = true
     if res then
-        local openidc = require("resty.openidc")
-        openidc.set_logging(nil, { DEBUG = ngx.INFO })
-        local ok, err = openidc.bearer_jwt_verify(state.authentication.parameters)
+        local ok, err = authenticate(state.authentication)
         if ok then
-            for i, permission in pairs(ok.permissions or {}) do
-                if res["permission"] == permission then
-                    ngx.status = 200
-                    ngx.say(permission)
-                    ngx.exit(ngx.HTTP_OK)
-                    return
-                end
+            if is_authorized(res["permission"], service.superuser_permission, ok.permissions) then
+                return
             end
+
             ngx.exit(ngx.HTTP_FORBIDDEN)
         else
             ngx.exit(ngx.HTTP_UNAUTHORIZED)

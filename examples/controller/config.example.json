@@ -1,8 +1,8 @@
 {
   "authentication": {
-    "mode": "bearer",
+    "mode": "bearer_jwt_verify",
     "parameters": {
-      "discovery": "https://xxxxxx.us.auth0.com/.well-known/openid-configuration",
+      "discovery": "https://xxxx.us.auth0.com/.well-known/openid-configuration",
       "ssl_verify": "no"
     }
   },

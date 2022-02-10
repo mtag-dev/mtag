@@ -2,18 +2,18 @@
 
 Under development
 
-#### WIP
+#### WIP (autotests yet not implemented)
 
-- [ ] WebSockets connector. PoC exists
-- [ ] Configuration protocol processing
-- [ ] Resolving endpoint configuration
+- [x] WebSockets connector. PoC exists
+- [x] Configuration protocol processing
+- [x] Resolving endpoint configuration
+- [x] Wait for configuration init in `rewrite` stage
+- [x] IDP dynamic configuration
 
 #### TODO
 
-- [ ] Wait for configuration init in `rewrite` stage
+- [ ] Maintenance mode
 - [ ] Rate-limit. Planned
-- [ ] IDP dynamic configuration
 - [ ] Groups to action dynamic mapping
 - [ ] JWT/OAuth/OIDC integration
-- [ ] Maintenance mode
 - [ ] Introspection

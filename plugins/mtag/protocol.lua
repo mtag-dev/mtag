@@ -26,6 +26,8 @@ function _M:feed(encoded)
             self:process_service(record.data)
         end
     end
+
+    self.state.initialized = true
 end
 
 -- Single service configuration processor
