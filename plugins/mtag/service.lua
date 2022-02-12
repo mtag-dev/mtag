@@ -14,22 +14,43 @@ end
 function Service:configure(data)
     local router = squall_router.new_router()
     local settings = {}
+    local errors = {}
+    local res, err
 
-    for alias, regex in pairs(data.validators) do
-        router:add_validator(alias, regex)
+    -- ignore trailing slashes mode
+    if data.ignore_trailing_slashes then
+        router:set_ignore_trailing_slashes()
     end
 
+    -- loading parameters validators
+    for alias, regex in pairs(data.validators or {}) do
+        res, err = router:add_validator(alias, regex)
+        if err then
+            table.insert(errors, err)
+        end
+    end
+
+    -- endpoints registration
     for index, endpoint in pairs(data.endpoints) do
-        router:add_route(
+        res, err = router:add_route(
             endpoint.method,
             endpoint.path,
             index
         )
-        settings[index] = endpoint
+        if err then
+            table.insert(errors, err)
+        else
+            settings[index] = endpoint
+        end
+    end
+
+    if next(errors) ~= nil then
+        return false, errors
     end
 
     self.router = router
     self.settings = settings
+    return true
 end
 
 -- Route resolving method.
@@ -39,7 +60,7 @@ end
 function Service:resolve(method, path)
     local res, err = self.router:resolve(method, path)
     if res ~= nil then
-        return self.settings[res[1]], nil
+        return self.settings[res[1]]
     end
 end
 

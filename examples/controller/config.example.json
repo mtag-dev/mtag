@@ -2,8 +2,10 @@
   "authentication": {
     "mode": "bearer_jwt_verify",
     "parameters": {
-      "discovery": "https://xxxx.us.auth0.com/.well-known/openid-configuration",
-      "ssl_verify": "no"
+      "discovery": "https://xxx.us.auth0.com/.well-known/openid-configuration",
+      "ssl_verify": "no",
+      "accept_none_alg": false,
+      "accept_unsupported_alg": false
     }
   },
   "services": [

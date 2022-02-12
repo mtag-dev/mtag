@@ -1,5 +1,5 @@
 local cjson = require("cjson.safe")
-local service = require("mtag.service")
+local service = require("plugins.mtag.service")
 
 local _M = {
     version = "v1"

@@ -25,7 +25,7 @@ router = Router(prefix="/v1", tags=["Gateway"])
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     fanout.join(websocket)
-    await asyncio.sleep(5)  # Emulate uge latency
+    # await asyncio.sleep(5)  # Emulate uge latency
 
     commands = []
     with open("/app/config.example.json") as fh:

@@ -48,8 +48,8 @@ end
 
 
 function _M.init_worker()
-    local websocket = require("mtag.websocket"):new("controller:81", true)
-    local protocol = require("mtag.protocol"):new(_M.state)
+    local websocket = require("plugins.mtag.websocket"):new("controller:81", true)
+    local protocol = require("plugins.mtag.protocol"):new(_M.state)
     websocket:set_protocol(protocol)
     websocket:run()
 end
