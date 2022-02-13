@@ -1,0 +1,39 @@
+ARG BASE_IMAGE=k8s.gcr.io/ingress-nginx/controller:v1.1.1
+
+FROM ${BASE_IMAGE} AS builder
+
+ARG LUAROCKS_VERSION=3.7.0
+
+USER root
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN apk update && \
+    apk add --virtual \
+        build-dependencies \
+        build-base \
+        gcc \
+        git \
+        unzip \
+        curl \
+        make \
+        tar \
+        gzip
+
+RUN curl -L -O https://luarocks.org/releases/luarocks-${LUAROCKS_VERSION}.tar.gz
+RUN tar xpf luarocks-${LUAROCKS_VERSION}.tar.gz && cd luarocks-${LUAROCKS_VERSION} && ./configure && make && make install
+RUN PATH="$HOME/.cargo/bin:$PATH" luarocks install squall-router
+
+RUN luarocks install lua-resty-openidc
+RUN luarocks install lua-resty-http
+RUN luarocks install lua-resty-session
+RUN luarocks install lua-resty-jwt
+RUN luarocks install lua-resty-websocket
+
+
+FROM ${BASE_IMAGE}
+
+USER www-data
+COPY --from=builder /usr/local/lib/luarocks/rocks-5.1 /usr/local/lib/luarocks/rocks-5.1
+COPY --from=builder /usr/local/lib/lua/5.1 /usr/local/lib/lua/5.1
+COPY --from=builder /usr/local/share/lua/5.1 /usr/local/share/lua/5.1
+COPY lua/plugins/mtag /etc/nginx/lua/plugins/mtag
