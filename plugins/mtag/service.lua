@@ -16,6 +16,7 @@ function Service:configure(data)
     local settings = {}
     local errors = {}
     local res, err
+    local index = 1
 
     -- ignore trailing slashes mode
     if data.ignore_trailing_slashes then
@@ -31,17 +32,27 @@ function Service:configure(data)
     end
 
     -- endpoints registration
-    for index, endpoint in pairs(data.endpoints) do
-        res, err = router:add_route(
-            endpoint.method,
-            endpoint.path,
-            index
-        )
+    for _, route in pairs(data.endpoints or {}) do
+        res, err = router:add_route(route.method, route.path, index)
+
         if err then
             table.insert(errors, err)
-        else
-            settings[index] = endpoint
         end
+
+        settings[index] = route
+        index = index + 1
+    end
+
+    -- locations registration
+    for _, route in pairs(data.locations or {}) do
+        res, err = router:add_location(route.method, route.path, index)
+
+        if err then
+            table.insert(errors, err)
+        end
+
+        settings[index] = route
+        index = index + 1
     end
 
     if next(errors) ~= nil then
@@ -50,6 +61,7 @@ function Service:configure(data)
 
     self.router = router
     self.settings = settings
+    self.superuser_permission = data.superuser_permission
     return true
 end
 

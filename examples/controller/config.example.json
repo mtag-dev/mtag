@@ -66,6 +66,20 @@
           "permission": "service:user:add",
           "allow_anonymous": false
         }
+      ],
+      "locations": [
+        {
+          "method": "GET",
+          "path": "/images",
+          "permission": "service:images",
+          "allow_anonymous": false
+        },
+        {
+          "method": "GET",
+          "path": "/js",
+          "permission": "service:js",
+          "allow_anonymous": false
+        }
       ]
     }
   ]
