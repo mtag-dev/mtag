@@ -1,5 +1,6 @@
 local ngx = ngx
 local cjson = require("cjson")
+local config = require("plugins.mtag.config")
 local openidc = require("resty.openidc")
 openidc.set_logging(nil, {DEBUG = ngx.INFO})
 
@@ -48,7 +49,7 @@ end
 
 
 function _M.init_worker()
-    local websocket = require("plugins.mtag.websocket"):new("controller:81", true)
+    local websocket = require("plugins.mtag.websocket"):new(config.controller)
     local protocol = require("plugins.mtag.protocol"):new(_M.state)
     websocket:set_protocol(protocol)
     websocket:run()
@@ -68,6 +69,14 @@ function _M.rewrite()
         if ok then
             if is_authorized(res["permission"], service.superuser_permission, ok.permissions) then
                 return
+
+                -- set header
+                -- ngx.req.set_header(header_name, value)
+
+                -- clear headers
+                -- for header, _ in pairs(ngx.req.get_headers()) do
+                --     ngx.req.clear_header(header)
+                -- end
             end
 
             ngx.exit(ngx.HTTP_FORBIDDEN)

@@ -32,7 +32,21 @@
           "group": "User",
           "title": "Edit",
           "permission": "service:user:edit",
-          "allow_anonymous": false
+          "allow_anonymous": false,
+          "headers": [
+            {
+              "name": "x-mtag-permissions",
+              "from": "access_token",
+              "location": "permissions",
+              "on_absent": "???"
+            },
+            {
+              "name": "x-mtag-user",
+              "from": "access_token",
+              "location": "sub",
+              "on_absent": "???"
+            }
+          ]
         },
         {
           "method": "GET",

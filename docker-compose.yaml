@@ -9,10 +9,11 @@ services:
       - "80:80"
     volumes:
       - ./lua/plugins:/etc/nginx/lua/plugins
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
       - ./config.example.json:/etc/nginx/config.example.json
-      - ./nginx.vh.default.conf:/etc/nginx/conf.d/default.conf
       - ./t:/etc/nginx/t
+    environment:
+      - MTAG_CONTROLLER_HOST=controller:81
 
   controller:
     container_name: controller

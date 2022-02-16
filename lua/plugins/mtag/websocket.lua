@@ -39,8 +39,8 @@ end
 -- Create new Controller-WebSocket communication instance
 -- @param host Controller host
 -- @param insecure Use ws:// instead of wss://
-function WebSocket:new(host, insecure)
-    self.host = host
+function WebSocket:new(config)
+    self.host = config.host
     self.insecure = insecure
     return self
 end
