@@ -1,6 +1,11 @@
-# MTAG
+# MTAG (under development)
 
-Under development
+More Than API Gateway
+
+### Features
+
+- Feature1
+- Feature2
 
 ### Controller configuration
 

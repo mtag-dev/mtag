@@ -23,12 +23,12 @@ RUN curl -L -O https://luarocks.org/releases/luarocks-${LUAROCKS_VERSION}.tar.gz
 RUN tar xpf luarocks-${LUAROCKS_VERSION}.tar.gz && cd luarocks-${LUAROCKS_VERSION} && ./configure && make && make install
 RUN PATH="$HOME/.cargo/bin:$PATH" luarocks install squall-router
 
+# Installing dependencies
 RUN luarocks install lua-resty-openidc
 RUN luarocks install lua-resty-http
 RUN luarocks install lua-resty-session
 RUN luarocks install lua-resty-jwt
 RUN luarocks install lua-resty-websocket
-
 
 FROM ${BASE_IMAGE}
 
