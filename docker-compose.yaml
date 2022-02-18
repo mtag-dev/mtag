@@ -12,8 +12,10 @@ services:
       - ./nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
       - ./config.example.json:/etc/nginx/config.example.json
       - ./t:/etc/nginx/t
+      - ./bin/busted:/bin/busted
     environment:
       - MTAG_CONTROLLER_HOST=controller:81
+      - MTAG_CONTROLLER_SSL=false
 
   controller:
     container_name: controller

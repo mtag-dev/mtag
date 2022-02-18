@@ -1,13 +1,15 @@
-local validation = require("resty.validation")
-
-
+-- Trim starting and ending spaces from string
+-- @param s string to be trimmed
 local function trim(s)
    return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
 
-
-local function get_bool(name, default)
-  local val = trim(os.getenv(name) or ""):lower()
+-- Get boolean value from ENV variable
+-- @param variable ENV variable name
+-- @param default for return if `variable` isn't set or have wrong format
+local function get_bool(variable, default)
+  -- TODO: log.WARN if ENV variable exists but not a valid boolean
+  local val = trim(os.getenv(variable) or ""):lower()
 
   if val == "true" then
     return true
@@ -18,22 +20,46 @@ local function get_bool(name, default)
   end
 end
 
-
-local function get_int(name, default)
-  return tonumber(trim(os.getenv(name) or "")) or default
+-- Get integer value from ENV variable
+-- @param variable ENV variable name
+-- @param default for return if `variable` isn't set or have wrong format
+local function get_int(variable, default)
+  -- TODO: log.WARN if ENV variable exists but not a valid integer
+  return tonumber(trim(os.getenv(variable) or "")) or default
 end
+
+-- Get hostname value from ENV variable like `<hostname>:<port>` or `<hostname>`
+-- @param variable ENV variable name
+local function get_hostname(variable)
+  local from_env = os.getenv(variable)
+  if from_env then
+    return string.match(from_env, "([^:]+):[0-9]+") or from_env
+  end
+end
+
+-- Get port value from ENV variable like `<hostname>:<port>`
+-- @param variable ENV variable name
+local function get_port(variable)
+  return tonumber(trim(string.match(os.getenv(variable) or "", "[^:]+:([0-9]+)") or ""))
+end
+
+
+local controller_ssl = get_bool("MTAG_CONTROLLER_SSL", true)
+local controller_default_port = controller_ssl and 443 or 80
 
 
 local _M = {
   controller = {
-    host = os.getenv("MTAG_CONTROLLER_HOST"),
+    hostname = get_hostname("MTAG_CONTROLLER_HOST"),
+    port = get_port("MTAG_CONTROLLER_HOST") or controller_default_port,
     prefix = os.getenv("MTAG_CONTROLLER_PREFIX") or "",
     secret = os.getenv("MTAG_CONTROLLER_SECRET"),
-    ssl = get_bool("MTAG_CONTROLLER_SSL", true),
+    ssl = controller_ssl,
     ssl_verify = get_bool("MTAG_CONTROLLER_SSL_VERIFY", true)
   },
   redis = {
-    host = os.getenv("MTAG_REDIS_HOST"),
+    hostname = get_hostname("MTAG_REDIS_HOST"),
+    port = get_port("MTAG_REDIS_HOST") or 6379,
     pool_size = get_int("MTAG_REDIS_POOL_SIZE", 10),
     backlog = get_int("MTAG_REDIS_BACKLOG", nil),
     timeout = get_int("MTAG_REDIS_TIMEOUT", 1),

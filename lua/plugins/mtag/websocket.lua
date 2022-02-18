@@ -18,14 +18,43 @@ local function receive(wb, protocol)
     end
 end
 
+local function build_uri(hostname, port, ssl, prefix, version)
+    if ssl then
+      port = port == 443 and "" or ":" .. port
+      proto = "wss"
+    else
+      port = port == 80 and "" or ":" .. port
+      proto = "ws"
+    end
+    local host = hostname .. port
+    return proto .. "://".. host .. prefix .. "/gateway/" .. version .. "/ws"
+end
 
-local function run(host, insecure, protocol)
+-- @param config WebSocket configuration table. Example:
+-- config = {
+--    hostname = "controller",
+--    port = 443,
+--    prefix = "/controller/behind/proxy",
+--    secret = "password123:D",
+--    ssl = true,
+--    ssl_verify = true
+-- }
+-- @param protocol `plugin.mtag.protocol` instance:
+local function run(config, protocol)
     local client = require "resty.websocket.client"
+    local uri = build_uri(
+      config.hostname,
+      config.port,
+      config.ssl,
+      config.prefix,
+      protocol.version
+    )
+
+    local connect_options = { ssl_verify = config.ssl_verify }
 
     while true do
         local wb, err = client:new()
-        local uri = "ws://".. host .."/gateway/" .. protocol.version .. "/ws"
-        local ok, err = wb:connect(uri)
+        local ok, err = wb:connect(uri, connect_options)
         if err then
             ngx.log(ngx.ERR, "failed to connect: " .. err)
             ngx.sleep(5)
@@ -37,11 +66,17 @@ end
 
 
 -- Create new Controller-WebSocket communication instance
--- @param host Controller host
--- @param insecure Use ws:// instead of wss://
-function WebSocket:new(config)
-    self.host = config.host
-    self.insecure = insecure
+-- @param ws_config WebSocket configuration table. Example:
+-- ws_config = {
+--    hostname = "controller",
+--    port = 443,
+--    prefix = "/controller/behind/proxy",
+--    secret = "password123:D",
+--    ssl = true,
+--    ssl_verify = true
+-- }
+function WebSocket:new(ws_config)
+    self.config = ws_config
     return self
 end
 
@@ -58,8 +93,7 @@ function WebSocket:run()
     local function thread()
         ngx.thread.spawn(
             run,
-            self.host,
-            self.insecure,
+            self.config,
             self.protocol
         )
     end
